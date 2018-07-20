@@ -162,6 +162,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.0.14"
+  encrypt:
+    dependency: "direct main"
+    description:
+      name: encrypt
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.2.0"
   fixnum:
     dependency: transitive
     description:

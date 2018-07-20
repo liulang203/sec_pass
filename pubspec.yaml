@@ -13,6 +13,7 @@ dependencies:
   secure_string: ^2.0.0
   barcode_scan: ^0.0.4
   pointycastle: ^1.0.0-rc2
+  encrypt: ^0.2.0
 
 dev_dependencies:
   flutter_test:

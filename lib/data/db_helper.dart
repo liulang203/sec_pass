@@ -74,6 +74,11 @@ class DbHelper {
         whereArgs: [condition, condition]);
     return maps.map((m) => new SecAccount.fromMap(m)).toList(growable: false);
   }
+  Future<List<SecAccount>> all() async {
+    var dbClient = await db;
+    List<Map> maps = await dbClient.query(tableSecAccount);
+    return maps.map((m) => new SecAccount.fromMap(m)).toList(growable: false);
+  }
 
   Future<int> updatePassword(SecAccount account) async {
     var dbClient = await db;
