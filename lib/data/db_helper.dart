@@ -40,7 +40,7 @@ class DbHelper {
       $columnAlternate1 TEXT,
       $columnAlternate2 TEXT,
       $columnAlternate3 TEXT,
-      $columnAlternate4 TEXT,
+      $columnAlternate4 TEXT
       )""");
   }
 

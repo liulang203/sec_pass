@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'app_login.dart';
 import 'package:sec_pass/models/sec_account.dart';
-import 'package:sec_pass/data/db_helper.dart';
+import 'package:sec_pass/service/sec_account_service.dart';
 
 /// Opens an [AlertDialog] showing what the user typed.
 class ListAccountPage extends StatefulWidget {
@@ -12,8 +12,10 @@ class ListAccountPage extends StatefulWidget {
 /// State for [PasswordListWidget] widgets.
 class _ListAccountPageState extends State<ListAccountPage> {
   final TextEditingController _controller = new TextEditingController();
-  final DbHelper _dbHelper= DbHelper();
-  final List<SecAccount> _accounts= [];
+  final SecAccountService _secAccountService = SecAccountService();
+  final List<SecAccount> _accounts = [];
+  final loginPage = new LoginPage();
+
   @override
   Widget build(BuildContext context) {
     _searchAccounts();
@@ -28,13 +30,7 @@ class _ListAccountPageState extends State<ListAccountPage> {
         ),
         actions: <Widget>[
           new IconButton(
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => loginPage,
-                );
-              },
-              icon: new Icon(Icons.search)),
+              onPressed: _searchAccounts, icon: new Icon(Icons.search)),
           new IconButton(
               onPressed: _accountAdd, icon: new Icon(Icons.person_add)),
         ],
@@ -43,26 +39,36 @@ class _ListAccountPageState extends State<ListAccountPage> {
         itemBuilder: (context, i) {
           if (i.isOdd) return new Divider();
           final index = i ~/ 2;
-          if(index<_accounts.length) {
+          if (index < _accounts.length) {
             return _listDetail(_accounts[index]);
           }
-
         },
       ),
     );
   }
-  Widget _listDetail(SecAccount account){
+
+  Widget _listDetail(SecAccount account) {
     return new Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        new ListTile(title: new Text("${account.username}"),
-    subtitle: new Text("${account.tag}"),),
+        new ListTile(
+          title: new Text("${account.username}"),
+          subtitle: new Text("${account.tag}"),
+        ),
         new ButtonBar(
           children: <Widget>[
-            new IconButton(icon: new Icon(Icons.pageview),color: Colors.blueAccent, onPressed: null),
-            new IconButton(icon: new Icon(Icons.edit),color: Colors.blueAccent, onPressed: null),
-            new IconButton(icon: new Icon(Icons.delete),color: Colors.deepOrangeAccent, onPressed: null),
-
+            new IconButton(
+                icon: new Icon(Icons.pageview),
+                color: Colors.blueAccent,
+                onPressed: null),
+            new IconButton(
+                icon: new Icon(Icons.edit),
+                color: Colors.blueAccent,
+                onPressed: null),
+            new IconButton(
+                icon: new Icon(Icons.delete),
+                color: Colors.deepOrangeAccent,
+                onPressed: null),
           ],
         )
       ],
@@ -71,12 +77,20 @@ class _ListAccountPageState extends State<ListAccountPage> {
 
   /// add  new account info
   void _accountAdd() {
-    Navigator.of(context).pushNamed("/addAccount");
+    if (!_secAccountService.isSetEncrypter()) {
+      showDialog(
+        context: context,
+        builder: (context) => loginPage,
+      );
+    } else {
+      Navigator.of(context).pushNamed("/addAccount");
+    }
   }
-  void _searchAccounts() async{
-    List<SecAccount> lists = await  _dbHelper.search(_controller.value.text);
+
+  void _searchAccounts() async {
+    List<SecAccount> lists =
+    await _secAccountService.search(_controller.value.text);
     _accounts.clear();
     _accounts.addAll(lists);
-
   }
 }

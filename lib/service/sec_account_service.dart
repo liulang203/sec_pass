@@ -7,9 +7,14 @@ import 'package:sec_pass/models/sec_account.dart';
 import 'package:secure_string/secure_string.dart';
 
 class SecAccountService {
-  Encrypter _encrypter;
+  Encrypter _encrypter = null;
   DbHelper _dbHelper = DbHelper();
   String _passwordSeperate = "|||";
+  static final SecAccountService _instance = new SecAccountService._internal();
+
+  factory SecAccountService() => _instance;
+
+  SecAccountService._internal();
 
   Future<bool> saveAccount(SecAccount account) async {
     var password = account.password;
@@ -42,16 +47,28 @@ class SecAccountService {
     return _dbHelper.search(condition);
   }
 
-  void initEncrypter(String key) {
+  Future<bool> initEncrypter(String key) async {
     var basePass = base64.encode(utf8.encode(key));
     if (basePass.length < 32) {
       basePass = "${basePass}JA8jtT0kMsqddwykw76RAMrSWCVrsmDL";
     }
-    _encrypter = new Encrypter(new AES(basePass.substring(0, 32)));
+    Encrypter encrypter = new Encrypter(new AES(basePass.substring(0, 32)));
+    List<SecAccount> accounts = await _dbHelper.all();
+    if (accounts.isNotEmpty) {
+      try {
+        encrypter.decrypt(accounts.first.password);
+      } catch (e) {
+        return false;
+      }
+    }
+    this._encrypter = encrypter;
+    print(this._encrypter);
+    return true;
   }
 
   bool isSetEncrypter() {
-    return _encrypter == null;
+    print(this._encrypter);
+    return this._encrypter != null;
   }
 
   String encrypt(String text) {
