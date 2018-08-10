@@ -43,7 +43,7 @@ class SecAccount {
   String alternate4;
 
   Map<String, dynamic> toMap() {
-    Map map = {
+    Map map = <String, dynamic>{
       columnUsername: username,
       columnTag: tag,
       columnPassword: password,

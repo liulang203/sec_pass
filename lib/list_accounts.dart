@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 import 'app_login.dart';
 import 'package:sec_pass/models/sec_account.dart';
 import 'package:sec_pass/service/sec_account_service.dart';
@@ -11,14 +12,33 @@ class ListAccountPage extends StatefulWidget {
 
 /// State for [PasswordListWidget] widgets.
 class _ListAccountPageState extends State<ListAccountPage> {
+  var refreshKey= new GlobalKey<RefreshIndicatorState>();
   final TextEditingController _controller = new TextEditingController();
   final SecAccountService _secAccountService = SecAccountService();
   final List<SecAccount> _accounts = [];
   final loginPage = new LoginPage();
 
   @override
+  void initState(){
+    super.initState();
+    _refreshList();
+  }
+
+  Future<Null> _refreshList() async{
+    refreshKey.currentState.show(atTop: false);
+    List<SecAccount> lists =
+    await _secAccountService.search(_controller.value.text);
+    _accounts.clear();
+    _accounts.addAll(lists);
+    return null;
+  }
+  void _searchAccounts() async{
+    await _refreshList();
+  }
+
+
+  @override
   Widget build(BuildContext context) {
-    _searchAccounts();
     return new Scaffold(
       appBar: new AppBar(
         // There is a input Field for search the passwords
@@ -35,7 +55,7 @@ class _ListAccountPageState extends State<ListAccountPage> {
               onPressed: _accountAdd, icon: new Icon(Icons.person_add)),
         ],
       ),
-      body: new ListView.builder(
+      body: new RefreshIndicator(child:  new ListView.builder(
         itemBuilder: (context, i) {
           if (i.isOdd) return new Divider();
           final index = i ~/ 2;
@@ -44,6 +64,8 @@ class _ListAccountPageState extends State<ListAccountPage> {
           }
         },
       ),
+        onRefresh: _refreshList,
+      )
     );
   }
 
@@ -87,10 +109,4 @@ class _ListAccountPageState extends State<ListAccountPage> {
     }
   }
 
-  void _searchAccounts() async {
-    List<SecAccount> lists =
-    await _secAccountService.search(_controller.value.text);
-    _accounts.clear();
-    _accounts.addAll(lists);
-  }
 }

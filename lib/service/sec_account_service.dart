@@ -19,6 +19,8 @@ class SecAccountService {
   Future<bool> saveAccount(SecAccount account) async {
     var password = account.password;
     account.password = encrypt(password);
+    account.createdDate=DateTime.now();
+    account.updatedDate=DateTime.now();
     var res = await _dbHelper.saveSecAccount(account);
     if (res < 1) {
       account.password = password;
@@ -29,6 +31,7 @@ class SecAccountService {
   Future<bool> upatePassword(SecAccount account) async {
     var password = account.password;
     account.password = encrypt(password);
+    account.updatedDate=DateTime.now();
     var res = await _dbHelper.updatePassword(account);
     if (res < 1) {
       account.password = password;
