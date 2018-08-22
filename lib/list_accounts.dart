@@ -12,101 +12,122 @@ class ListAccountPage extends StatefulWidget {
 
 /// State for [PasswordListWidget] widgets.
 class _ListAccountPageState extends State<ListAccountPage> {
-  var refreshKey= new GlobalKey<RefreshIndicatorState>();
   final TextEditingController _controller = new TextEditingController();
   final SecAccountService _secAccountService = SecAccountService();
   final List<SecAccount> _accounts = [];
   final loginPage = new LoginPage();
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
     _refreshList();
   }
 
-  Future<Null> _refreshList() async{
-    refreshKey.currentState.show(atTop: false);
+  Future<Null> _refreshList() async {
     List<SecAccount> lists =
-    await _secAccountService.search(_controller.value.text);
-    _accounts.clear();
-    _accounts.addAll(lists);
-    return null;
+        await _secAccountService.search(_controller.value.text);
+    setState(() {
+      _accounts.clear();
+      _accounts.addAll(lists);
+    });
+
+    return new Future.value(null);
   }
-  void _searchAccounts() async{
+
+  void _searchAccounts() async {
     await _refreshList();
   }
-
-
-  @override
-  Widget build(BuildContext context) {
-    return new Scaffold(
-      appBar: new AppBar(
-        // There is a input Field for search the passwords
-        title: new TextField(
-          controller: _controller,
-          decoration: new InputDecoration(
-            hintText: 'Search password',
-          ),
-        ),
-        actions: <Widget>[
-          new IconButton(
-              onPressed: _searchAccounts, icon: new Icon(Icons.search)),
-          new IconButton(
-              onPressed: _accountAdd, icon: new Icon(Icons.person_add)),
-        ],
-      ),
-      body: new RefreshIndicator(child:  new ListView.builder(
-        itemBuilder: (context, i) {
-          if (i.isOdd) return new Divider();
-          final index = i ~/ 2;
-          if (index < _accounts.length) {
-            return _listDetail(_accounts[index]);
-          }
-        },
-      ),
-        onRefresh: _refreshList,
-      )
-    );
-  }
-
-  Widget _listDetail(SecAccount account) {
-    return new Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        new ListTile(
-          title: new Text("${account.username}"),
-          subtitle: new Text("${account.tag}"),
-        ),
-        new ButtonBar(
-          children: <Widget>[
-            new IconButton(
-                icon: new Icon(Icons.pageview),
-                color: Colors.blueAccent,
-                onPressed: null),
-            new IconButton(
-                icon: new Icon(Icons.edit),
-                color: Colors.blueAccent,
-                onPressed: null),
-            new IconButton(
-                icon: new Icon(Icons.delete),
-                color: Colors.deepOrangeAccent,
-                onPressed: null),
-          ],
-        )
-      ],
-    );
-  }
-
   /// add  new account info
   void _accountAdd() {
+    if (_validateAccount()) {
+      Navigator.of(context).pushNamed("/addAccount");
+    }
+  }
+  void _viewAccountDetail(int id) async{
+    if (_validateAccount()) {
+      SecAccount acc = await _secAccountService.findOne(id);
+      var pass = _secAccountService.showPassword(acc.password);
+      showDialog(
+        context: context,
+        builder: (context){
+         return new AlertDialog(
+           title: new Text("Password"),
+           content: new Text(pass),
+         );
+        },
+      );
+    }
+  }
+  bool _validateAccount(){
     if (!_secAccountService.isSetEncrypter()) {
       showDialog(
         context: context,
         builder: (context) => loginPage,
       );
-    } else {
-      Navigator.of(context).pushNamed("/addAccount");
+      return false;
     }
+    return true;
   }
+
+  @override
+  Widget build(BuildContext context) {
+    return new Scaffold(
+        appBar: new AppBar(
+          // There is a input Field for search the passwords
+          title: new TextField(
+            controller: _controller,
+            decoration: new InputDecoration(
+              hintText: 'Search password',
+            ),
+          ),
+          actions: <Widget>[
+            new IconButton(
+                onPressed: _searchAccounts, icon: new Icon(Icons.search)),
+            new IconButton(
+                onPressed: _accountAdd, icon: new Icon(Icons.person_add)),
+          ],
+        ),
+        body: new RefreshIndicator(
+          child: new ListView(
+            children: _listItems(),
+          ),
+          onRefresh: _refreshList,
+        ));
+  }
+
+  List<Widget> _listItems() {
+    var items = <Widget>[];
+    for (int i = 0; i < _accounts.length; i++) {
+      items.add(_listDetail(_accounts[i]));
+      items.add(new Divider());
+    }
+    return items;
+  }
+
+  Widget _listDetail(SecAccount account) {
+    var res = new Row(
+      children: <Widget>[
+        new Expanded(
+            child: new ListTile(
+          title: new Text("${account.username}"),
+          subtitle: new Text("${account.tag}"),
+        )),
+        new IconButton(
+            icon: new Icon(Icons.pageview),
+            color: Colors.blueAccent,
+            onPressed: (){_viewAccountDetail(account.id);}),
+        new IconButton(
+            icon: new Icon(Icons.edit),
+            color: Colors.blueAccent,
+            onPressed: null),
+        new IconButton(
+            icon: new Icon(Icons.delete),
+            color: Colors.deepOrangeAccent,
+            onPressed: null),
+      ],
+    );
+    return res;
+  }
+
 
 }

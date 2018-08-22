@@ -108,4 +108,13 @@ class DbHelper {
     List<int> res = await batch.commit();
     return res;
   }
+
+  Future<SecAccount> findByPk(int id) async {
+    var dbClient = await db;
+    List<Map> maps = await dbClient.query(tableSecAccount,
+        where: "$columnId = ? ", whereArgs: [id]);
+
+    return new SecAccount.fromMap(maps.first);
+
+  }
 }

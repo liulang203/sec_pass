@@ -47,6 +47,7 @@ class SecAccountService {
     if (condition == '') {
       return await _dbHelper.all();
     }
+    condition="%${condition}%";
     return _dbHelper.search(condition);
   }
 
@@ -65,7 +66,6 @@ class SecAccountService {
       }
     }
     this._encrypter = encrypter;
-    print(this._encrypter);
     return true;
   }
 
@@ -84,5 +84,10 @@ class SecAccountService {
   String decrypt(String text) {
     var p = _encrypter.decrypt(text);
     return p.substring(0, p.lastIndexOf(_passwordSeperate));
+  }
+
+  Future<SecAccount> findOne(int id) async {
+    return await _dbHelper.findByPk(id);
+
   }
 }
