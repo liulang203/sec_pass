@@ -60,8 +60,7 @@ class SecAccount {
     return map;
   }
 
-  SecAccount();
-
+   SecAccount({this.id,this.password});
   SecAccount.fromMap(dynamic obj) {
     this.id = obj[columnId];
     this.username = obj[columnUsername];

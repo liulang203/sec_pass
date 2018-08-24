@@ -1,15 +1,13 @@
 import 'dart:async';
-import 'dart:convert';
 
-import 'package:encrypt/encrypt.dart';
 import 'package:sec_pass/data/db_helper.dart';
 import 'package:sec_pass/models/sec_account.dart';
-import 'package:secure_string/secure_string.dart';
+import 'package:sec_pass/utils/encrypter_util.dart';
 
 class SecAccountService {
-  Encrypter _encrypter = null;
+  EncrypterUtil _encrypter = null;
   DbHelper _dbHelper = DbHelper();
-  String _passwordSeperate = "|||";
+
   static final SecAccountService _instance = new SecAccountService._internal();
 
   factory SecAccountService() => _instance;
@@ -29,13 +27,9 @@ class SecAccountService {
   }
 
   Future<bool> upatePassword(SecAccount account) async {
-    var password = account.password;
-    account.password = encrypt(password);
+    account.password = encrypt(account.password);
     account.updatedDate=DateTime.now();
     var res = await _dbHelper.updatePassword(account);
-    if (res < 1) {
-      account.password = password;
-    }
     return res > 0;
   }
 
@@ -52,15 +46,16 @@ class SecAccountService {
   }
 
   Future<bool> initEncrypter(String key) async {
-    var basePass = base64.encode(utf8.encode(key));
-    if (basePass.length < 32) {
-      basePass = "${basePass}JA8jtT0kMsqddwykw76RAMrSWCVrsmDL";
-    }
-    Encrypter encrypter = new Encrypter(new AES(basePass.substring(0, 32)));
+
+    EncrypterUtil encrypter = new EncrypterUtil(key);
     List<SecAccount> accounts = await _dbHelper.all();
     if (accounts.isNotEmpty) {
+      print("account is not empty, check the accounts password");
       try {
-        encrypter.decrypt(accounts.first.password);
+        if(encrypter.decrypt(accounts.first.password) == null){
+          return false;
+        }
+        print("check the password success");
       } catch (e) {
         return false;
       }
@@ -70,24 +65,24 @@ class SecAccountService {
   }
 
   bool isSetEncrypter() {
-    print(this._encrypter);
     return this._encrypter != null;
   }
 
   String encrypt(String text) {
-    var p = "${text}${_passwordSeperate}";
-    var padding =
-        new SecureString().generateAlphaNumeric(length: (32 - (p.length % 32)));
-    return _encrypter.encrypt("${p}${padding}");
+
+    return _encrypter.encrypt(text);
   }
 
   String decrypt(String text) {
-    var p = _encrypter.decrypt(text);
-    return p.substring(0, p.lastIndexOf(_passwordSeperate));
+    return _encrypter.decrypt(text);
   }
 
   Future<SecAccount> findOne(int id) async {
     return await _dbHelper.findByPk(id);
 
+  }
+
+  Future<int> deleteAccount(int id) async {
+   return await _dbHelper.delete(id);
   }
 }

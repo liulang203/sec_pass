@@ -86,7 +86,7 @@ class DbHelper {
         tableSecAccount,
         {
           columnPassword: account.password,
-          columnPassword: account.updatedDate.millisecondsSinceEpoch
+          columnUpdatedDate: account.updatedDate.millisecondsSinceEpoch
         },
         where: "$columnId = ?",
         whereArgs: [account.id]);

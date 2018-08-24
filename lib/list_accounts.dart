@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'app_login.dart';
+import 'update_password.dart';
 import 'package:sec_pass/models/sec_account.dart';
 import 'package:sec_pass/service/sec_account_service.dart';
 
@@ -37,28 +38,73 @@ class _ListAccountPageState extends State<ListAccountPage> {
   void _searchAccounts() async {
     await _refreshList();
   }
+
   /// add  new account info
   void _accountAdd() {
     if (_validateAccount()) {
       Navigator.of(context).pushNamed("/addAccount");
     }
   }
-  void _viewAccountDetail(int id) async{
+
+  void _viewAccountDetail(int id) async {
     if (_validateAccount()) {
       SecAccount acc = await _secAccountService.findOne(id);
       var pass = _secAccountService.showPassword(acc.password);
       showDialog(
         context: context,
-        builder: (context){
-         return new AlertDialog(
-           title: new Text("Password"),
-           content: new Text(pass),
-         );
+        builder: (context) {
+          return new AlertDialog(
+            title: new Text("Password"),
+            content: new Text(pass),
+          );
         },
       );
     }
   }
-  bool _validateAccount(){
+
+  void _editAccountPasswd(int id) async {
+    if (_validateAccount()) {
+      showDialog(
+        context: context,
+        builder: (context) => new UpdatePasswordPage(uid: id),
+      );
+    }
+  }
+  void _deleteAccount(int id) {
+    if (_validateAccount()) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return new AlertDialog(
+            title: new Text("Confirm Delete Account"),
+            content:
+            new ButtonBar(
+              children: <Widget>[
+                new RaisedButton.icon(
+                  onPressed:(){ Navigator.pop(context, true);},
+                  icon: new Icon(Icons.cancel),
+                  label: new Text("Cancel"),
+                ),
+                new RaisedButton.icon(
+                  onPressed: () async {
+                    int num = await _secAccountService.deleteAccount(id);
+                    if(num >0){
+                      _refreshList();
+                      Navigator.pop(context, true);
+                    }
+                  },
+                  icon: new Icon(Icons.check),
+                  label: new Text("Delete"),
+                )
+              ],
+            )
+          );
+        },
+      );
+    }
+  }
+
+  bool _validateAccount() {
     if (!_secAccountService.isSetEncrypter()) {
       showDialog(
         context: context,
@@ -68,6 +114,8 @@ class _ListAccountPageState extends State<ListAccountPage> {
     }
     return true;
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -115,19 +163,23 @@ class _ListAccountPageState extends State<ListAccountPage> {
         new IconButton(
             icon: new Icon(Icons.pageview),
             color: Colors.blueAccent,
-            onPressed: (){_viewAccountDetail(account.id);}),
+            onPressed: () {
+              _viewAccountDetail(account.id);
+            }),
         new IconButton(
             icon: new Icon(Icons.edit),
             color: Colors.blueAccent,
-            onPressed: null),
+            onPressed: () {
+              _editAccountPasswd(account.id);
+            }),
         new IconButton(
             icon: new Icon(Icons.delete),
             color: Colors.deepOrangeAccent,
-            onPressed: null),
+            onPressed: () {
+              _deleteAccount(account.id);
+            }),
       ],
     );
     return res;
   }
-
-
 }
