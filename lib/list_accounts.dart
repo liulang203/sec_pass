@@ -70,35 +70,35 @@ class _ListAccountPageState extends State<ListAccountPage> {
       );
     }
   }
+
   void _deleteAccount(int id) {
     if (_validateAccount()) {
       showDialog(
         context: context,
         builder: (context) {
           return new AlertDialog(
-            title: new Text("Confirm Delete Account"),
-            content:
-            new ButtonBar(
-              children: <Widget>[
-                new RaisedButton.icon(
-                  onPressed:(){ Navigator.pop(context, true);},
-                  icon: new Icon(Icons.cancel),
-                  label: new Text("Cancel"),
-                ),
-                new RaisedButton.icon(
-                  onPressed: () async {
-                    int num = await _secAccountService.deleteAccount(id);
-                    if(num >0){
-                      _refreshList();
-                      Navigator.pop(context, true);
-                    }
-                  },
-                  icon: new Icon(Icons.check),
-                  label: new Text("Delete"),
-                )
-              ],
-            )
-          );
+              title: new Text("Confirm Delete Account"),
+              content: new ButtonBar(
+                alignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  new IconButton(
+                      icon: new Icon(Icons.cancel),
+                      iconSize: 48.0,
+                      onPressed: () {
+                        Navigator.pop(context, true);
+                      }),
+                  new IconButton(
+                      icon: new Icon(Icons.check, color: Colors.deepOrangeAccent),
+                      iconSize: 48.0,
+                      onPressed: () async {
+                        int num = await _secAccountService.deleteAccount(id);
+                        if (num > 0) {
+                          _refreshList();
+                          Navigator.pop(context, true);
+                        }
+                      }),
+                ],
+              ));
         },
       );
     }
@@ -114,8 +114,6 @@ class _ListAccountPageState extends State<ListAccountPage> {
     }
     return true;
   }
-
-
 
   @override
   Widget build(BuildContext context) {

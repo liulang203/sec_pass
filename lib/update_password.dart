@@ -46,7 +46,7 @@ class _UpdatePasswordState extends State<UpdatePasswordPage> {
       title: new Text('Enter The Password'),
       children: <Widget>[
         new Container(
-          padding: EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 0.0),
+          padding: EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 0.0),
           child: new Form(
             key: _formKey,
             autovalidate: false,
