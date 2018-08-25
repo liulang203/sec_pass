@@ -1,6 +1,7 @@
 name: sec_pass
 description: A new Flutter project.
 
+
 dependencies:
   flutter:
     sdk: flutter
