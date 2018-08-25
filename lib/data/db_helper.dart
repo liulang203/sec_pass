@@ -40,7 +40,7 @@ class DbHelper {
       $columnAlternate1 TEXT,
       $columnAlternate2 TEXT,
       $columnAlternate3 TEXT,
-      $columnAlternate4 TEXT,
+      $columnAlternate4 TEXT
       )""");
   }
 
@@ -86,7 +86,7 @@ class DbHelper {
         tableSecAccount,
         {
           columnPassword: account.password,
-          columnPassword: account.updatedDate.millisecondsSinceEpoch
+          columnUpdatedDate: account.updatedDate.millisecondsSinceEpoch
         },
         where: "$columnId = ?",
         whereArgs: [account.id]);
@@ -107,5 +107,14 @@ class DbHelper {
 
     List<int> res = await batch.commit();
     return res;
+  }
+
+  Future<SecAccount> findByPk(int id) async {
+    var dbClient = await db;
+    List<Map> maps = await dbClient.query(tableSecAccount,
+        where: "$columnId = ? ", whereArgs: [id]);
+
+    return new SecAccount.fromMap(maps.first);
+
   }
 }

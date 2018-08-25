@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
 import 'password_field.dart';
+import 'package:sec_pass/models/sec_account.dart';
 import 'package:sec_pass/service/sec_account_service.dart';
 
-class LoginPage extends StatefulWidget {
+class UpdatePasswordPage extends StatefulWidget {
+  const UpdatePasswordPage({
+    this.uid,
+  });
+
+  final int uid;
 
   @override
-  _LoginPageState createState() => new _LoginPageState();
+  _UpdatePasswordState createState() => new _UpdatePasswordState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _UpdatePasswordState extends State<UpdatePasswordPage> {
   final SecAccountService _secAccountService = SecAccountService();
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
   String password;
@@ -21,11 +27,11 @@ class _LoginPageState extends State<LoginPage> {
   }
 
 //check the password is success
-  void _checkPassword() async {
+  void _savePassword() async {
     final FormState form = _formKey.currentState;
     if (form.validate()) {
       form.save();
-      bool res = await _secAccountService.initEncrypter(password);
+      bool res = await _secAccountService.upatePassword(new SecAccount(id: widget.uid,password: password));
       if (res) {
         Navigator.pop(context, true);
       } else {
@@ -60,9 +66,14 @@ class _LoginPageState extends State<LoginPage> {
                 new ButtonBar(
                   children: <Widget>[
                     new RaisedButton.icon(
-                      onPressed: _checkPassword,
-                      icon: new Icon(Icons.spellcheck),
-                      label: new Text("Login"),
+                      onPressed:(){ Navigator.pop(context, true);},
+                      icon: new Icon(Icons.cancel),
+                      label: new Text("Cancel"),
+                    ),
+                    new RaisedButton.icon(
+                      onPressed: _savePassword,
+                      icon: new Icon(Icons.save),
+                      label: new Text("Save"),
                     )
                   ],
                 )

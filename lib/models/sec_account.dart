@@ -43,7 +43,7 @@ class SecAccount {
   String alternate4;
 
   Map<String, dynamic> toMap() {
-    Map map = {
+    Map map = <String, dynamic>{
       columnUsername: username,
       columnTag: tag,
       columnPassword: password,
@@ -60,8 +60,7 @@ class SecAccount {
     return map;
   }
 
-  SecAccount();
-
+   SecAccount({this.id,this.password});
   SecAccount.fromMap(dynamic obj) {
     this.id = obj[columnId];
     this.username = obj[columnUsername];
