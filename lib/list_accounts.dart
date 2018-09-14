@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'app_login.dart';
 import 'update_password.dart';
+import 'show_password.dart';
 import 'package:sec_pass/models/sec_account.dart';
 import 'package:sec_pass/service/sec_account_service.dart';
 
@@ -13,6 +14,7 @@ class ListAccountPage extends StatefulWidget {
 
 /// State for [PasswordListWidget] widgets.
 class _ListAccountPageState extends State<ListAccountPage> {
+  final key = new GlobalKey<ScaffoldState>();
   final TextEditingController _controller = new TextEditingController();
   final SecAccountService _secAccountService = SecAccountService();
   final List<SecAccount> _accounts = [];
@@ -48,14 +50,12 @@ class _ListAccountPageState extends State<ListAccountPage> {
 
   void _viewAccountDetail(int id) async {
     if (_validateAccount()) {
-      SecAccount acc = await _secAccountService.findOne(id);
-      var pass = _secAccountService.showPassword(acc.password);
       showDialog(
         context: context,
         builder: (context) {
-          return new AlertDialog(
-            title: new Text("Password"),
-            content: new Text(pass),
+          return new ShowPasswordPage(
+            uid: id,
+            stateKey: key,
           );
         },
       );
@@ -88,7 +88,8 @@ class _ListAccountPageState extends State<ListAccountPage> {
                         Navigator.pop(context, true);
                       }),
                   new IconButton(
-                      icon: new Icon(Icons.check, color: Colors.deepOrangeAccent),
+                      icon:
+                          new Icon(Icons.check, color: Colors.deepOrangeAccent),
                       iconSize: 48.0,
                       onPressed: () async {
                         int num = await _secAccountService.deleteAccount(id);
@@ -118,6 +119,7 @@ class _ListAccountPageState extends State<ListAccountPage> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
+        key: key,
         appBar: new AppBar(
           // There is a input Field for search the passwords
           title: new TextField(
