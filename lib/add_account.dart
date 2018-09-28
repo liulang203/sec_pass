@@ -61,7 +61,6 @@ class _AddAccountState extends State<AddAccountPage> {
         var infos = barcode.split(";;;");
         if (infos.length > 3) {
           setState(() {
-            print("content is success:${barcode}");
             _nameCtl.value = new TextEditingValue(text: infos[1]);
             _tagCtl.value = new TextEditingValue(text: infos[2]);
             _pwdCtl.value = new TextEditingValue(text: infos[3]);

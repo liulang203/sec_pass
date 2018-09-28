@@ -4,7 +4,7 @@ import 'package:encrypt/encrypt.dart';
 import 'package:secure_string/secure_string.dart';
 
 class EncrypterUtil{
-  Encrypter _encrypter = null;
+  Encrypter _encrypter;
   String _passwordSeperate = "|||";
   EncrypterUtil(String key){
     var basePass = base64.encode(utf8.encode(key));
@@ -14,10 +14,10 @@ class EncrypterUtil{
     _encrypter = new Encrypter(new AES(basePass.substring(0, 32)));
   }
   String encrypt(String text) {
-    var p = "${text}${_passwordSeperate}";
+    var p = "$text$_passwordSeperate";
     var padding =
     new SecureString().generateAlphaNumeric(length: (32 - (p.length % 32)));
-    return _encrypter.encrypt("${p}${padding}");
+    return _encrypter.encrypt("$p$padding");
   }
 
   String decrypt(String text) {

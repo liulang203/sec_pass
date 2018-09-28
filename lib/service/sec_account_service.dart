@@ -5,7 +5,7 @@ import 'package:sec_pass/models/sec_account.dart';
 import 'package:sec_pass/utils/encrypter_util.dart';
 
 class SecAccountService {
-  EncrypterUtil _encrypter = null;
+  EncrypterUtil _encrypter;
   DbHelper _dbHelper = DbHelper();
 
   static final SecAccountService _instance = new SecAccountService._internal();
@@ -41,8 +41,7 @@ class SecAccountService {
     if (condition == '') {
       return await _dbHelper.all();
     }
-    condition="%${condition}%";
-    return _dbHelper.search(condition);
+    return _dbHelper.search("%$condition%");
   }
 
   Future<bool> initEncrypter(String key) async {

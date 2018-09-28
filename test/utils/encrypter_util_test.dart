@@ -8,18 +8,18 @@ void main() {
   EncrypterUtil sas = new EncrypterUtil("中文测试");
   var text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit ........";
   var encry = sas.encrypt(text);
-  print("encrypt data:${encry}");
+  print("encrypt data:$encry");
   expect(text, sas.decrypt(encry));
 
   sas = new EncrypterUtil("昨夜西风凋碧树，独上高楼，望尽天涯路。");
   text = "Lorem ipsum dolor sit";
   encry = sas.encrypt(text);
-  print("encrypt data:${encry}");
+  print("encrypt data:$encry");
   expect(text, sas.decrypt(encry));
 
   text = "中文测试";
   encry = sas.encrypt(text);
-  print("encrypt data:${encry}");
+  print("encrypt data:$encry");
   expect(text, sas.decrypt(encry));
   });
   test("utf code ",(){
